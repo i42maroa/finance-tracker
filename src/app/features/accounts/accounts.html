@@ -41,20 +41,25 @@
     <section class="panel" aria-labelledby="household-title">
       <header class="section-head">
         <div>
-          <p class="section-kicker">Household</p>
-          <h2 id="household-title" class="section-title">{{ user.household }}</h2>
+          <p class="section-kicker">Households</p>
+          <h2 id="household-title" class="section-title">Households del usuario</h2>
         </div>
       </header>
 
-      <div class="member-list">
-        @for (member of members; track memberTrackBy($index, member)) {
-          <article class="member-row">
+      <div class="household-list">
+        @for (household of households$ | async; track householdTrackBy($index, household)) {
+          <article class="household-row">
             <div>
-              <p class="member-name">{{ member.name }}</p>
-              <p class="member-role">{{ member.role }}</p>
+              <p class="household-name">{{ household.name }}</p>
+              <p class="household-meta">{{ household.members.length }} miembros</p>
             </div>
-            <span class="member-status">{{ member.status }}</span>
+            <span class="member-status">{{ userRoleLabel(household) }}</span>
           </article>
+        } @empty {
+          <div class="empty">
+            <p class="empty-title">Todavia no perteneces a ningun household</p>
+            <p class="muted">Crea uno desde la seccion Households para empezar.</p>
+          </div>
         }
       </div>
     </section>

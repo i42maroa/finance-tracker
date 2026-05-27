@@ -1,13 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
-import {
-  mockHouseholdMembers,
-  mockProfileFields,
-  mockProfileMetrics,
-  mockUserProfile,
-} from '../../shared/mocks/profile.mock';
-import { HouseholdMember, ProfileField, ProfileMetric } from '../../shared/models/profile.model';
+import { HouseholdsService } from '../households/service/households.service';
+import { mockProfileFields, mockProfileMetrics, mockUserProfile } from '../../shared/mocks/profile.mock';
+import { Household } from '../../shared/models/household.model';
+import { ProfileField, ProfileMetric } from '../../shared/models/profile.model';
 
 @Component({
   selector: 'app-accounts',
@@ -16,13 +13,15 @@ import { HouseholdMember, ProfileField, ProfileMetric } from '../../shared/model
   styleUrl: './accounts.css',
 })
 export class Accounts {
+  private readonly householdsService = inject(HouseholdsService);
+
   readonly user = mockUserProfile;
   readonly profileFields = mockProfileFields;
   readonly metrics = mockProfileMetrics;
-  readonly members = mockHouseholdMembers;
+  readonly households$ = this.householdsService.households$;
 
-  memberTrackBy(_: number, member: HouseholdMember): string {
-    return member.name;
+  householdTrackBy(_: number, household: Household): string {
+    return household.id;
   }
 
   fieldTrackBy(_: number, field: ProfileField): string {
@@ -31,5 +30,11 @@ export class Accounts {
 
   metricTrackBy(_: number, metric: ProfileMetric): string {
     return metric.label;
+  }
+
+  userRoleLabel(household: Household): string {
+    const userMember = household.members.find((member) => member.email === this.user.email);
+
+    return userMember?.role === 'admin' ? 'Administrador' : 'Miembro';
   }
 }

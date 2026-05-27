@@ -65,9 +65,10 @@ dd {
 
 .profile-subtitle,
 .metric-detail,
-.member-role,
+.household-meta,
 .privacy-copy,
-dt {
+dt,
+.muted {
   color: color-mix(in srgb, var(--color-text), var(--color-secondary) 45%);
 }
 
@@ -114,7 +115,7 @@ dt {
 
 .section-head,
 .detail-row,
-.member-row {
+.household-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -139,30 +140,30 @@ dt {
 }
 
 .details-list,
-.member-list {
+.household-list {
   display: grid;
   margin-top: 1rem;
 }
 
 .detail-row,
-.member-row {
+.household-row {
   min-height: 3.25rem;
   border-top: 1px solid var(--color-page);
 }
 
 .detail-row:first-child,
-.member-row:first-child {
+.household-row:first-child {
   border-top: 0;
 }
 
 dt,
-.member-role {
+.household-meta {
   font-size: 0.875rem;
   font-weight: 600;
 }
 
 dd,
-.member-name {
+.household-name {
   color: var(--color-text);
   font-weight: 700;
   text-align: right;
@@ -172,12 +173,28 @@ dd {
   overflow-wrap: anywhere;
 }
 
-.member-row {
+.household-row {
   align-items: center;
 }
 
-.member-name {
+.household-name {
   text-align: left;
+}
+
+.empty {
+  border: 1px dashed var(--color-page);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.empty-title {
+  font-weight: 700;
+}
+
+.muted {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
 }
 
 .privacy-panel {
