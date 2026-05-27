@@ -1,31 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, defer, delay, map, of, tap, throwError } from 'rxjs';
 
+import { mockTransactions } from '../../../shared/mocks/transactions.mock';
 import { Transaction, TransactionDraft } from '../../../shared/models/transaction.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionsService {
-  private readonly transactionsSubject = new BehaviorSubject<Transaction[]>([
-    {
-      id: 'tx-demo-1',
-      type: 'expense',
-      amountCents: 1245,
-      date: this.today(),
-      category: 'Comida',
-      description: 'Menu del dia',
-      notes: 'Movimiento de ejemplo',
-    },
-    {
-      id: 'tx-demo-2',
-      type: 'income',
-      amountCents: 250000,
-      date: this.today(),
-      category: 'Nomina',
-      description: 'Ingreso mensual',
-    },
-  ]);
+  private readonly transactionsSubject = new BehaviorSubject<Transaction[]>(mockTransactions);
 
   readonly transactions$ = this.transactionsSubject.asObservable();
 
@@ -87,7 +70,4 @@ export class TransactionsService {
     return crypto.randomUUID();
   }
 
-  private today(): string {
-    return new Date().toISOString().slice(0, 10);
-  }
 }
