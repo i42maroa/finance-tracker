@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { combineLatest, map } from 'rxjs';
 
 import { AppErrorService } from '../../core/errors/app-error.service';
 import { Transaction, TransactionDraft } from '../../shared/models/transaction.model';
@@ -19,10 +21,22 @@ export class Transactions {
   private readonly appErrorService = inject(AppErrorService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly modalService = inject(ModalService);
+  private readonly route = inject(ActivatedRoute);
   private readonly snackbarService = inject(SnackbarService);
   private readonly transactionsService = inject(TransactionsService);
 
   readonly transactions$ = this.transactionsService.transactions$;
+  readonly selectedMonth$ = this.route.paramMap.pipe(
+    map((params) => this.normalizeMonth(params.get('month'))),
+  );
+  readonly selectedMonthLabel$ = this.selectedMonth$.pipe(
+    map((selectedMonth) => this.formatMonthLabel(selectedMonth)),
+  );
+  readonly filteredTransactions$ = combineLatest([this.transactions$, this.selectedMonth$]).pipe(
+    map(([transactions, selectedMonth]) =>
+      transactions.filter((transaction) => transaction.date.startsWith(selectedMonth)),
+    ),
+  );
   readonly form = this.formBuilder.nonNullable.group({
     type: this.formBuilder.nonNullable.control<'expense' | 'income'>('expense', {
       validators: [Validators.required],
@@ -177,6 +191,24 @@ export class Transactions {
 
   private formatAmountForInput(amountCents: number): string {
     return (amountCents / 100).toFixed(2);
+  }
+
+  private normalizeMonth(month: string | null): string {
+    if (month?.match(/^\d{4}-\d{2}$/)) {
+      return month;
+    }
+
+    return this.today().slice(0, 7);
+  }
+
+  private formatMonthLabel(month: string): string {
+    const date = new Date(`${month}-01T00:00:00`);
+    const label = new Intl.DateTimeFormat('es-ES', {
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
+
+    return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
   private today(): string {

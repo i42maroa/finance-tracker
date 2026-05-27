@@ -209,7 +209,6 @@ El soporte offline completo no forma parte del alcance inicial.
 - Listado y filtros de movimientos.
 - Dashboard mensual basico.
 - Seguridad RLS en Supabase.
-- Tailwind CSS como sistema de estilos.
 - Diseno mobile first.
 
 ### Version 2

@@ -1,0 +1,34 @@
+<main class="home-page">
+  <section class="home-shell">
+    <header class="home-header">
+      <p class="eyebrow">Finance Tracker</p>
+      <h1 class="home-title">Selecciona un mes</h1>
+      <p class="home-subtitle">
+        Consulta los movimientos registrados por mes en {{ selectedYear }}.
+      </p>
+    </header>
+
+    <label class="year-selector">
+      Año
+      <select class="year-select" [(ngModel)]="selectedYear">
+        @for (year of availableYears; track year) {
+          <option [ngValue]="year">{{ year }}</option>
+        }
+      </select>
+    </label>
+
+    <section class="month-grid" aria-label="Meses de {{ selectedYear }}">
+      @for (month of months; track monthTrackBy($index, month)) {
+        <a
+          class="month-link"
+          [class.current-month]="month.isCurrent"
+          [routerLink]="['/transactions', month.month]"
+          [attr.aria-current]="month.isCurrent ? 'date' : null"
+        >
+          <span class="month-name">{{ month.label }}</span>
+          <span class="month-year">{{ selectedYear }}</span>
+        </a>
+      }
+    </section>
+  </section>
+</main>

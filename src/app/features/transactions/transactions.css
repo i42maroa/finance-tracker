@@ -44,6 +44,13 @@ h2 {
   line-height: 1.75rem;
 }
 
+.month-label {
+  margin: 0.25rem 0 0;
+  color: color-mix(in srgb, var(--color-text), var(--color-secondary) 45%);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .count {
   border-radius: 999px;
   padding: 0.5rem 0.75rem;

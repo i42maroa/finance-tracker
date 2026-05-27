@@ -4,14 +4,15 @@
       <div>
         <p class="currency">EUR</p>
         <h1 class="page-title">Transacciones</h1>
+        <p class="month-label">{{ selectedMonthLabel$ | async }}</p>
       </div>
       <div class="count">
-        {{ (transactions$ | async)?.length ?? 0 }}
+        {{ (filteredTransactions$ | async)?.length ?? 0 }}
       </div>
     </header>
 
     <section class="list">
-      @for (transaction of transactions$ | async; track transactionTrackBy($index, transaction)) {
+      @for (transaction of filteredTransactions$ | async; track transactionTrackBy($index, transaction)) {
         <article class="card">
           <div class="summary">
             <div class="copy">
@@ -56,8 +57,8 @@
         </article>
       } @empty {
         <div class="empty">
-          <p class="empty-title">Todavia no hay transacciones</p>
-          <p class="muted">Crea el primer gasto o ingreso para verlo aqui.</p>
+          <p class="empty-title">Todavia no hay transacciones en este mes</p>
+          <p class="muted">Crea un gasto o ingreso con fecha de este mes para verlo aqui.</p>
         </div>
       }
     </section>
