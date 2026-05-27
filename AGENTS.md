@@ -251,3 +251,4 @@ El soporte offline completo no forma parte del alcance inicial.
 - Separar inversiones de gastos e ingresos diarios.
 - Leer `STACK.md` para conocer el stack tecnico vigente del proyecto.
 - Mantener `STACK.md` limitado al stack tecnico.
+- Cuando se cree una nueva interfaz se debe de introducir dentro de la carpeta `models`.

@@ -1,0 +1,36 @@
+<header class="navbar">
+  <nav class="navbar-shell" aria-label="Navegacion principal">
+    <a class="brand-link" routerLink="/" (click)="closeMenu()">Finance Tracker</a>
+
+    <button
+      class="menu-button"
+      type="button"
+      aria-label="Abrir menu de navegacion"
+      [attr.aria-expanded]="isMenuOpen"
+      aria-controls="primary-navigation"
+      (click)="toggleMenu()"
+    >
+      <span class="menu-line"></span>
+      <span class="menu-line"></span>
+      <span class="menu-line"></span>
+    </button>
+
+    <div
+      id="primary-navigation"
+      class="nav-links"
+      [class.nav-links-open]="isMenuOpen"
+    >
+      @for (item of navItems; track navItemTrackBy($index, item)) {
+        <a
+          class="nav-link"
+          [routerLink]="item.route"
+          routerLinkActive="nav-link-active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+          (click)="closeMenu()"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </div>
+  </nav>
+</header>
