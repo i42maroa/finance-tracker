@@ -1,23 +1,21 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+import { ModalConfig } from '../../models/modal.model';
+
 @Injectable({
   providedIn: 'root',
 })
 export class ModalService {
-  private readonly isOpenSubject = new BehaviorSubject(false);
+  private readonly modalSubject = new BehaviorSubject<ModalConfig | null>(null);
 
-  readonly isOpen$ = this.isOpenSubject.asObservable();
+  readonly modal$ = this.modalSubject.asObservable();
 
-  open(): void {
-    this.isOpenSubject.next(true);
+  open(config: ModalConfig): void {
+    this.modalSubject.next(config);
   }
 
   close(): void {
-    this.isOpenSubject.next(false);
-  }
-
-  toggle(): void {
-    this.isOpenSubject.next(!this.isOpenSubject.value);
+    this.modalSubject.next(null);
   }
 }

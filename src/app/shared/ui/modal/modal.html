@@ -1,4 +1,4 @@
-@if (modalService.isOpen$ | async) {
+@if (modalService.modal$ | async; as modal) {
   <div class="modal-shell">
     <button
       class="modal-backdrop"
@@ -21,7 +21,17 @@
         x
       </button>
 
-      <ng-content />
+      @switch (modal.type) {
+        @case ('transaction-form') {
+          <app-transaction-form-modal [data]="modal.data" />
+        }
+        @case ('household-create') {
+          <app-household-create-modal />
+        }
+        @case ('household-invite') {
+          <app-household-invite-modal [data]="modal.data" />
+        }
+      }
     </section>
   </div>
 }

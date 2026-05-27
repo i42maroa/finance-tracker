@@ -2,10 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 
 import { ModalService } from './modal.service';
+import { HouseholdCreateModal } from './templates/household-create-modal/household-create-modal';
+import { HouseholdInviteModal } from './templates/household-invite-modal/household-invite-modal';
+import { TransactionFormModal } from './templates/transaction-form-modal/transaction-form-modal';
 
 @Component({
   selector: 'app-modal',
-  imports: [CommonModule],
+  imports: [CommonModule, HouseholdCreateModal, HouseholdInviteModal, TransactionFormModal],
   templateUrl: './modal.html',
   styleUrl: './modal.css',
 })
