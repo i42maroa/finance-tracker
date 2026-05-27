@@ -273,3 +273,5 @@ El soporte offline completo no forma parte del alcance inicial.
 - Cuando se cree una nueva interfaz se debe de introducir dentro de la carpeta `models`.
 - Cuando se cree un nuevo servicio Angular se debe ubicar dentro de `src/app/core/services`.
 - Los servicios deben agruparse en una subcarpeta por dominio dentro de `core/services`, por ejemplo `core/services/transaction`.
+- Al crear o modificar componentes se deben reutilizar los componentes genericos disponibles en `src/app/shared/ui` antes de crear marcado o estilos propios.
+- Para botones se deben usar los componentes de `src/app/shared/ui/buttons`, cuando encajen con la interaccion requerida.

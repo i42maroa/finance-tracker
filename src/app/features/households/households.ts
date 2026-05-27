@@ -3,12 +3,13 @@ import { Component, inject } from '@angular/core';
 import { combineLatest, map } from 'rxjs';
 
 import { Household, HouseholdMember } from '../../shared/models/household.model';
+import { BasicButton } from '../../shared/ui/buttons/basic-button/basic-button';
 import { HouseholdsService } from '../../core/services/household/households.service';
 import { ModalService } from '../../core/services/modal/modal.service';
 
 @Component({
   selector: 'app-households',
-  imports: [CommonModule],
+  imports: [BasicButton, CommonModule],
   templateUrl: './households.html',
   styleUrl: './households.css',
 })

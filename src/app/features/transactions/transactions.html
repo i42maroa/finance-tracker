@@ -147,12 +147,10 @@
     </section>
   </section>
 
-  <button
-    class="fab-button"
-    type="button"
-    aria-label="Crear transaccion"
-    (click)="openCreateTransactionModal()"
+  <app-circle-button
+    ariaLabel="Crear transaccion"
+    (pressed)="openCreateTransactionModal()"
   >
     +
-  </button>
+  </app-circle-button>
 </main>

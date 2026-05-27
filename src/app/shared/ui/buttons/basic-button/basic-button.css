@@ -1,0 +1,43 @@
+:host {
+  display: contents;
+}
+
+.basic-button {
+  min-height: 3rem;
+  border-radius: 0.5rem;
+  padding: 0 1rem;
+  font-weight: 700;
+}
+
+.basic-button-compact {
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+}
+
+.basic-button-primary {
+  border: 0;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+.basic-button-secondary {
+  border: 1px solid var(--color-page);
+  background: var(--color-secondary);
+  color: color-mix(in srgb, var(--color-text), var(--color-secondary) 20%);
+}
+
+.basic-button-danger {
+  border: 1px solid color-mix(in srgb, var(--color-error), var(--color-secondary) 75%);
+  background: var(--color-secondary);
+  color: var(--color-error);
+}
+
+.basic-button:disabled {
+  cursor: not-allowed;
+  background: var(--color-page);
+}
+
+.basic-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary), var(--color-secondary) 70%);
+  outline-offset: 2px;
+}

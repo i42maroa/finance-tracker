@@ -1,0 +1,9 @@
+<button
+  class="circle-button"
+  [type]="type"
+  [attr.aria-label]="ariaLabel"
+  [disabled]="disabled"
+  (click)="pressed.emit()"
+>
+  <ng-content />
+</button>

@@ -204,23 +204,11 @@ h2 {
   margin-top: 0.25rem;
 }
 
-.primary-button,
 .secondary-button {
   min-height: 3rem;
   border-radius: 0.5rem;
   padding: 0 1rem;
   font-weight: 700;
-}
-
-.primary-button {
-  border: 0;
-  background: var(--color-primary);
-  color: var(--color-secondary);
-}
-
-.primary-button:disabled {
-  cursor: not-allowed;
-  background: var(--color-page);
 }
 
 .secondary-button {
@@ -234,7 +222,6 @@ h2 {
   padding: 0 0.875rem;
 }
 
-button:focus-visible,
 button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-primary), var(--color-secondary) 70%);
   outline-offset: 2px;

@@ -1,0 +1,12 @@
+<button
+  class="basic-button"
+  [class.basic-button-compact]="size === 'compact'"
+  [class.basic-button-danger]="variant === 'danger'"
+  [class.basic-button-primary]="variant === 'primary'"
+  [class.basic-button-secondary]="variant === 'secondary'"
+  [type]="type"
+  [disabled]="disabled"
+  (click)="pressed.emit()"
+>
+  <ng-content />
+</button>

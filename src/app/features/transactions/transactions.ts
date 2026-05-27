@@ -16,6 +16,7 @@ import {
   TransactionType,
   TransactionView,
 } from '../../shared/models/transaction.model';
+import { CircleButton } from '../../shared/ui/buttons/circle-button/circle-button';
 
 type TransactionTypeFilter = TransactionType | '';
 
@@ -23,7 +24,7 @@ const TRANSACTIONS_PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-transactions',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CircleButton, CommonModule, ReactiveFormsModule],
   templateUrl: './transactions.html',
   styleUrl: './transactions.css',
 })

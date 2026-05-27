@@ -6,9 +6,9 @@
         <h1 class="page-title">Households</h1>
         <p class="page-subtitle">Gestiona tus hogares y sus miembros.</p>
       </div>
-      <button class="primary-button compact-button" type="button" (click)="openCreateModal()">
+      <app-basic-button variant="primary" size="compact" (pressed)="openCreateModal()">
         Nuevo
-      </button>
+      </app-basic-button>
     </header>
 
     @if (summary$ | async; as summary) {
