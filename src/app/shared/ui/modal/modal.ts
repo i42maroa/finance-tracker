@@ -7,6 +7,7 @@ import { ModalService } from './modal.service';
   selector: 'app-modal',
   imports: [CommonModule],
   templateUrl: './modal.html',
+  styleUrl: './modal.css',
 })
 export class Modal {
   readonly modalService = inject(ModalService);

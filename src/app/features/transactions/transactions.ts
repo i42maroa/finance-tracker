@@ -11,6 +11,7 @@ import { TransactionsService } from './service/transactions.service';
   selector: 'app-transactions',
   imports: [CommonModule, Modal, ReactiveFormsModule],
   templateUrl: './transactions.html',
+  styleUrl: './transactions.css',
 })
 export class Transactions {
   private readonly formBuilder = inject(FormBuilder);
