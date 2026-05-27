@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 
-import { HouseholdsService } from '../households/service/households.service';
+import { HouseholdsService } from '../../core/services/household/households.service';
 import { mockProfileFields, mockProfileMetrics, mockUserProfile } from '../../shared/mocks/profile.mock';
 import { Household } from '../../shared/models/household.model';
 import { ProfileField, ProfileMetric } from '../../shared/models/profile.model';

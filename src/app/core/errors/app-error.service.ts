@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
-import { SnackbarService } from '../../shared/ui/snackbar/snackbar.service';
+import { SnackbarService } from '../services/snackbar/snackbar.service';
 import { AppError } from './app-error.model';
 
 const UNKNOWN_ERROR_CODE = 'UNKNOWN_ERROR';

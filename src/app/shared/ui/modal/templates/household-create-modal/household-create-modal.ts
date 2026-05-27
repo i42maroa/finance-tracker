@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { HouseholdsService } from '../../../../../features/households/service/households.service';
-import { SnackbarService } from '../../../snackbar/snackbar.service';
-import { ModalService } from '../../modal.service';
+import { HouseholdsService } from '../../../../../core/services/household/households.service';
+import { ModalService } from '../../../../../core/services/modal/modal.service';
+import { SnackbarService } from '../../../../../core/services/snackbar/snackbar.service';
 
 @Component({
   selector: 'app-household-create-modal',

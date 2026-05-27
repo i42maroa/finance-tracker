@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Subscription } from 'rxjs';
 
-import { ModalConfig } from '../../models/modal.model';
+import { ModalConfig } from '../../../shared/models/modal.model';
 import { ModalService } from './modal.service';
 
 describe('ModalService', () => {

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SnackbarService } from '../../shared/ui/snackbar/snackbar.service';
+import { SnackbarService } from '../services/snackbar/snackbar.service';
 import { AppErrorService } from './app-error.service';
 
 describe('AppErrorService', () => {

@@ -1,13 +1,13 @@
 import { Component, Input, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { HouseholdsService } from '../../../../../features/households/service/households.service';
+import { HouseholdsService } from '../../../../../core/services/household/households.service';
+import { ModalService } from '../../../../../core/services/modal/modal.service';
+import { SnackbarService } from '../../../../../core/services/snackbar/snackbar.service';
 import {
   HouseholdInviteModalData,
 } from '../../../../models/modal.model';
 import { HouseholdInviteDraft } from '../../../../models/household.model';
-import { SnackbarService } from '../../../snackbar/snackbar.service';
-import { ModalService } from '../../modal.service';
 
 @Component({
   selector: 'app-household-invite-modal',

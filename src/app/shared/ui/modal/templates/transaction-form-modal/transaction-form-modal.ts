@@ -3,12 +3,12 @@ import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { AppErrorService } from '../../../../../core/errors/app-error.service';
-import { HouseholdsService } from '../../../../../features/households/service/households.service';
-import { TransactionsService } from '../../../../../features/transactions/service/transactions.service';
+import { HouseholdsService } from '../../../../../core/services/household/households.service';
+import { ModalService } from '../../../../../core/services/modal/modal.service';
+import { SnackbarService } from '../../../../../core/services/snackbar/snackbar.service';
+import { TransactionsService } from '../../../../../core/services/transaction/transactions.service';
 import { TransactionFormModalData } from '../../../../models/modal.model';
 import { TransactionDraft } from '../../../../models/transaction.model';
-import { SnackbarService } from '../../../snackbar/snackbar.service';
-import { ModalService } from '../../modal.service';
 
 @Component({
   selector: 'app-transaction-form-modal',

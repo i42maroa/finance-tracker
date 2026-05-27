@@ -5,6 +5,10 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, shareReplay, startWith, switchMap } from 'rxjs';
 import { AppErrorService } from '../../core/errors/app-error.service';
+import { HouseholdsService } from '../../core/services/household/households.service';
+import { ModalService } from '../../core/services/modal/modal.service';
+import { SnackbarService } from '../../core/services/snackbar/snackbar.service';
+import { TransactionsService } from '../../core/services/transaction/transactions.service';
 import { Household } from '../../shared/models/household.model';
 import {
   Transaction,
@@ -12,10 +16,6 @@ import {
   TransactionType,
   TransactionView,
 } from '../../shared/models/transaction.model';
-import { ModalService } from '../../shared/ui/modal/modal.service';
-import { SnackbarService } from '../../shared/ui/snackbar/snackbar.service';
-import { HouseholdsService } from '../households/service/households.service';
-import { TransactionsService } from './service/transactions.service';
 
 type TransactionTypeFilter = TransactionType | '';
 

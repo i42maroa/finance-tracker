@@ -3,8 +3,8 @@ import { Component, inject } from '@angular/core';
 import { combineLatest, map } from 'rxjs';
 
 import { Household, HouseholdMember } from '../../shared/models/household.model';
-import { ModalService } from '../../shared/ui/modal/modal.service';
-import { HouseholdsService } from './service/households.service';
+import { HouseholdsService } from '../../core/services/household/households.service';
+import { ModalService } from '../../core/services/modal/modal.service';
 
 @Component({
   selector: 'app-households',
