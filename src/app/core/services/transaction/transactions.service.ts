@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, defer, delay, map, of, tap, throwError } from 'rxjs';
 
 import { mockTransactions } from '../../../shared/mocks/transactions.mock';
@@ -9,21 +9,23 @@ import {
   TransactionPage,
   TransactionPageQuery,
 } from '../../../shared/models/transaction.model';
+import { LoaderService } from '../loader/loader.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionsService {
+  private readonly loaderService = inject(LoaderService);
   private readonly transactionsSubject = new BehaviorSubject<Transaction[]>(mockTransactions);
 
   readonly transactions$ = this.transactionsSubject.asObservable();
 
   getTransactions(): Observable<Transaction[]> {
-    return this.transactions$.pipe(delay(150));
+    return this.loaderService.track(this.transactions$.pipe(delay(150)));
   }
 
   getTransactionsPage(query: TransactionPageQuery): Observable<TransactionPage> {
-    return defer(() => {
+    return this.loaderService.track(defer(() => {
       const page = Math.max(1, query.page);
       const pageSize = Math.max(1, query.pageSize);
       const filteredTransactions = this.transactionsSubject.value
@@ -37,22 +39,22 @@ export class TransactionsService {
         page,
         pageSize,
       }).pipe(delay(150));
-    });
+    }));
   }
 
   createTransaction(transaction: TransactionDraft): Observable<Transaction> {
-    return of(transaction).pipe(
+    return this.loaderService.track(of(transaction).pipe(
       delay(150),
       map((draft) => ({ ...draft, id: this.createId() })),
       tap((createdTransaction) => {
         const nextTransactions = [createdTransaction, ...this.transactionsSubject.value];
         this.transactionsSubject.next(nextTransactions);
       }),
-    );
+    ));
   }
 
   updateTransaction(id: string, changes: TransactionDraft): Observable<Transaction> {
-    return defer(() => {
+    return this.loaderService.track(defer(() => {
       const currentTransactions = this.transactionsSubject.value;
       const transactionIndex = currentTransactions.findIndex((transaction) => transaction.id === id);
 
@@ -69,11 +71,11 @@ export class TransactionsService {
         delay(150),
         tap(() => this.transactionsSubject.next(nextTransactions)),
       );
-    });
+    }));
   }
 
   deleteTransaction(id: string): Observable<void> {
-    return defer(() => {
+    return this.loaderService.track(defer(() => {
       const currentTransactions = this.transactionsSubject.value;
       const exists = currentTransactions.some((transaction) => transaction.id === id);
 
@@ -87,7 +89,7 @@ export class TransactionsService {
         delay(150),
         tap(() => this.transactionsSubject.next(nextTransactions)),
       );
-    });
+    }));
   }
 
   private createId(): string {

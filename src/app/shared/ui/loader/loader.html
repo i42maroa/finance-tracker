@@ -1,0 +1,8 @@
+@if (loaderService.isLoading$ | async) {
+  <div class="loader-shell" role="status" aria-live="polite" aria-label="Cargando">
+    <div class="loader-panel">
+      <span class="loader-spinner" aria-hidden="true"></span>
+      <p class="loader-text">Cargando</p>
+    </div>
+  </div>
+}

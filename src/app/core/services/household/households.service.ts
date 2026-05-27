@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, delay, map, of, tap } from 'rxjs';
 
 import { mockHouseholds } from '../../../shared/mocks/households.mock';
@@ -9,11 +9,13 @@ import {
   HouseholdInviteDraft,
   HouseholdMember,
 } from '../../../shared/models/household.model';
+import { LoaderService } from '../loader/loader.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HouseholdsService {
+  private readonly loaderService = inject(LoaderService);
   private readonly householdsSubject = new BehaviorSubject<Household[]>(mockHouseholds);
   private readonly selectedHouseholdIdSubject = new BehaviorSubject<string | null>(
     mockHouseholds[0]?.id ?? null,
@@ -55,13 +57,13 @@ export class HouseholdsService {
       ],
     };
 
-    return of(household).pipe(
+    return this.loaderService.track(of(household).pipe(
       delay(150),
       tap((createdHousehold) => {
         this.householdsSubject.next([createdHousehold, ...this.householdsSubject.value]);
         this.selectedHouseholdIdSubject.next(createdHousehold.id);
       }),
-    );
+    ));
   }
 
   inviteMember(householdId: string, draft: HouseholdInviteDraft): Observable<HouseholdMember> {
@@ -73,7 +75,7 @@ export class HouseholdsService {
       status: 'pending',
     };
 
-    return of(member).pipe(
+    return this.loaderService.track(of(member).pipe(
       delay(150),
       tap((invitedMember) => {
         const nextHouseholds = this.householdsSubject.value.map((household) =>
@@ -84,7 +86,7 @@ export class HouseholdsService {
 
         this.householdsSubject.next(nextHouseholds);
       }),
-    );
+    ));
   }
 
   private createId(): string {
