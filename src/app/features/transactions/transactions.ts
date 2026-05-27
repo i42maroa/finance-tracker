@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { AppErrorService } from '../../core/errors/app-error.service';
 import { Transaction, TransactionDraft } from '../../shared/models/transaction.model';
 import { Modal } from '../../shared/ui/modal/modal';
 import { ModalService } from '../../shared/ui/modal/modal.service';
@@ -15,6 +16,7 @@ import { TransactionsService } from './service/transactions.service';
   styleUrl: './transactions.css',
 })
 export class Transactions {
+  private readonly appErrorService = inject(AppErrorService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly modalService = inject(ModalService);
   private readonly snackbarService = inject(SnackbarService);
@@ -66,7 +68,8 @@ export class Transactions {
           this.snackbarService.success('Transaccion creada correctamente.');
         }
       },
-      error: () => {
+      error: (error) => {
+        this.appErrorService.handle(error);
         this.errorMessage = 'No se pudo guardar la transaccion.';
         this.isSaving = false;
       },
@@ -103,8 +106,10 @@ export class Transactions {
         if (this.editingTransactionId === transaction.id) {
           this.resetForm();
         }
+        this.snackbarService.success('Transaccion eliminada correctamente.');
       },
-      error: () => {
+      error: (error) => {
+        this.appErrorService.handle(error);
         this.errorMessage = 'No se pudo eliminar la transaccion.';
         this.isSaving = false;
       },
