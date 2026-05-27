@@ -91,6 +91,7 @@ p {
 }
 
 .category,
+.household-name,
 .date,
 .muted,
 .money-prefix {
@@ -100,6 +101,11 @@ p {
 
 .category {
   margin-top: 0.25rem;
+}
+
+.household-name {
+  margin-top: 0.125rem;
+  color: var(--color-primary);
 }
 
 .amount {

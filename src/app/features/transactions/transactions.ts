@@ -3,12 +3,13 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, map } from 'rxjs';
-
 import { AppErrorService } from '../../core/errors/app-error.service';
-import { Transaction, TransactionDraft } from '../../shared/models/transaction.model';
+import { Household } from '../../shared/models/household.model';
+import { Transaction, TransactionDraft, TransactionView } from '../../shared/models/transaction.model';
 import { Modal } from '../../shared/ui/modal/modal';
 import { ModalService } from '../../shared/ui/modal/modal.service';
 import { SnackbarService } from '../../shared/ui/snackbar/snackbar.service';
+import { HouseholdsService } from '../households/service/households.service';
 import { TransactionsService } from './service/transactions.service';
 
 @Component({
@@ -20,11 +21,13 @@ import { TransactionsService } from './service/transactions.service';
 export class Transactions {
   private readonly appErrorService = inject(AppErrorService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly householdsService = inject(HouseholdsService);
   private readonly modalService = inject(ModalService);
   private readonly route = inject(ActivatedRoute);
   private readonly snackbarService = inject(SnackbarService);
   private readonly transactionsService = inject(TransactionsService);
 
+  readonly households$ = this.householdsService.households$;
   readonly transactions$ = this.transactionsService.transactions$;
   readonly selectedMonth$ = this.route.paramMap.pipe(
     map((params) => this.normalizeMonth(params.get('month'))),
@@ -32,12 +35,19 @@ export class Transactions {
   readonly selectedMonthLabel$ = this.selectedMonth$.pipe(
     map((selectedMonth) => this.formatMonthLabel(selectedMonth)),
   );
-  readonly filteredTransactions$ = combineLatest([this.transactions$, this.selectedMonth$]).pipe(
-    map(([transactions, selectedMonth]) =>
-      transactions.filter((transaction) => transaction.date.startsWith(selectedMonth)),
+  readonly filteredTransactions$ = combineLatest([
+    this.transactions$,
+    this.households$,
+    this.selectedMonth$,
+  ]).pipe(
+    map(([transactions, households, selectedMonth]) =>
+      transactions
+        .filter((transaction) => transaction.date.startsWith(selectedMonth))
+        .map((transaction) => this.toTransactionView(transaction, households)),
     ),
   );
   readonly form = this.formBuilder.nonNullable.group({
+    householdId: ['', [Validators.required]],
     type: this.formBuilder.nonNullable.control<'expense' | 'income'>('expense', {
       validators: [Validators.required],
     }),
@@ -97,6 +107,7 @@ export class Transactions {
     this.editingTransactionId = transaction.id;
     this.errorMessage = '';
     this.form.setValue({
+      householdId: transaction.householdId,
       type: transaction.type,
       amount: this.formatAmountForInput(transaction.amountCents),
       date: transaction.date,
@@ -142,10 +153,15 @@ export class Transactions {
     return transaction.id;
   }
 
+  householdTrackBy(_: number, household: Household): string {
+    return household.id;
+  }
+
   private toTransactionDraft(): TransactionDraft {
     const rawTransaction = this.form.getRawValue();
 
     return {
+      householdId: rawTransaction.householdId,
       type: rawTransaction.type,
       amountCents: this.eurosToCents(rawTransaction.amount),
       date: rawTransaction.date,
@@ -158,6 +174,7 @@ export class Transactions {
   private resetForm(): void {
     this.editingTransactionId = null;
     this.form.reset({
+      householdId: this.defaultHouseholdId(),
       type: 'expense',
       amount: '',
       date: this.today(),
@@ -165,6 +182,19 @@ export class Transactions {
       description: '',
       notes: '',
     });
+  }
+
+  private defaultHouseholdId(): string {
+    return this.householdsService.getSelectedHousehold()?.id ?? '';
+  }
+
+  private toTransactionView(transaction: Transaction, households: Household[]): TransactionView {
+    const household = households.find((item) => item.id === transaction.householdId);
+
+    return {
+      ...transaction,
+      householdName: household?.name ?? 'Household no disponible',
+    };
   }
 
   private eurosToCents(amount: string | number): number {

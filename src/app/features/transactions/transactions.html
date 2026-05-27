@@ -18,6 +18,7 @@
             <div class="copy">
               <p class="desc">{{ transaction.description }}</p>
               <p class="category">{{ transaction.category }}</p>
+              <p class="household-name">{{ transaction.householdName }}</p>
             </div>
             <p
               class="amount"
@@ -128,6 +129,16 @@
           type="date"
           formControlName="date"
         />
+      </label>
+
+      <label class="field">
+        Household
+        <select class="field-control" formControlName="householdId">
+          <option value="" disabled>Selecciona household</option>
+          @for (household of households$ | async; track householdTrackBy($index, household)) {
+            <option [value]="household.id">{{ household.name }}</option>
+          }
+        </select>
       </label>
 
       <label class="field">
