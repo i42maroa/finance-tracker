@@ -26,6 +26,7 @@ describe('TransactionsService', () => {
 
     await firstValueFrom(
       service.createTransaction({
+        householdId: 'hh-main',
         type: 'expense',
         amountCents: 399,
         date: '2026-05-26',
@@ -50,6 +51,7 @@ describe('TransactionsService', () => {
 
     await firstValueFrom(
       service.updateTransaction(transactionId, {
+        householdId: 'hh-main',
         type: 'income',
         amountCents: 15000,
         date: '2026-05-26',
@@ -61,6 +63,7 @@ describe('TransactionsService', () => {
 
     expect(latestTransactions[0]).toEqual({
       id: transactionId,
+      householdId: 'hh-main',
       type: 'income',
       amountCents: 15000,
       date: '2026-05-26',
@@ -76,5 +79,79 @@ describe('TransactionsService', () => {
     await firstValueFrom(service.deleteTransaction(transactionId));
 
     expect(latestTransactions.some((transaction) => transaction.id === transactionId)).toBe(false);
+  });
+
+  it('returns paginated transactions with a total count', async () => {
+    await Promise.all(
+      Array.from({ length: 21 }, (_, index) =>
+        firstValueFrom(
+          service.createTransaction({
+            householdId: 'hh-main',
+            type: 'expense',
+            amountCents: 100 + index,
+            date: '2026-05-01',
+            category: 'Test',
+            description: `Movimiento ${index + 1}`,
+          }),
+        ),
+      ),
+    );
+
+    const firstPage = await firstValueFrom(
+      service.getTransactionsPage({
+        filters: { dateFrom: '2026-05-01', dateTo: '2026-05-31' },
+        page: 1,
+        pageSize: 20,
+      }),
+    );
+    const secondPage = await firstValueFrom(
+      service.getTransactionsPage({
+        filters: { dateFrom: '2026-05-01', dateTo: '2026-05-31' },
+        page: 2,
+        pageSize: 20,
+      }),
+    );
+
+    expect(firstPage.items.length).toBe(20);
+    expect(firstPage.total).toBe(23);
+    expect(secondPage.items.length).toBe(3);
+  });
+
+  it('filters transactions by inclusive date range', async () => {
+    const page = await firstValueFrom(
+      service.getTransactionsPage({
+        filters: { dateFrom: '2026-05-27', dateTo: '2026-05-27' },
+        page: 1,
+        pageSize: 20,
+      }),
+    );
+
+    expect(page.total).toBe(2);
+    expect(page.items.every((transaction) => transaction.date === '2026-05-27')).toBe(true);
+  });
+
+  it('filters transactions by category, household, type and name', async () => {
+    const page = await firstValueFrom(
+      service.getTransactionsPage({
+        filters: {
+          category: 'nom',
+          householdId: 'hh-personal',
+          name: 'mensual',
+          type: 'income',
+        },
+        page: 1,
+        pageSize: 20,
+      }),
+    );
+
+    expect(page.total).toBe(1);
+    expect(page.items[0]).toEqual(
+      expect.objectContaining({
+        category: 'Nomina',
+        description: 'Ingreso mensual',
+        householdId: 'hh-personal',
+        type: 'income',
+      }),
+    );
   });
 });
