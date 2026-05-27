@@ -154,4 +154,185 @@ describe('TransactionsService', () => {
       }),
     );
   });
+
+  it('summarizes income, expenses and a positive balance for all filtered transactions', async () => {
+    await Promise.all([
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-positive',
+          type: 'income',
+          amountCents: 20000,
+          date: '2026-05-10',
+          category: 'Resumen positivo',
+          description: 'Ingreso principal resumen',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-positive',
+          type: 'income',
+          amountCents: 10000,
+          date: '2026-05-11',
+          category: 'Resumen positivo',
+          description: 'Ingreso extra resumen',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-positive',
+          type: 'expense',
+          amountCents: 12500,
+          date: '2026-05-12',
+          category: 'Resumen positivo',
+          description: 'Gasto resumen',
+        }),
+      ),
+    ]);
+
+    const summary = await firstValueFrom(
+      service.getTransactionsSummary({
+        dateFrom: '2026-05-01',
+        dateTo: '2026-05-31',
+        householdId: 'hh-summary-positive',
+      }),
+    );
+
+    expect(summary).toEqual({
+      incomeCents: 30000,
+      expenseCents: 12500,
+      balanceCents: 17500,
+    });
+  });
+
+  it('summarizes a negative balance', async () => {
+    await Promise.all([
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-negative',
+          type: 'income',
+          amountCents: 5000,
+          date: '2026-05-10',
+          category: 'Resumen negativo',
+          description: 'Ingreso menor resumen',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-negative',
+          type: 'expense',
+          amountCents: 12000,
+          date: '2026-05-11',
+          category: 'Resumen negativo',
+          description: 'Gasto mayor resumen',
+        }),
+      ),
+    ]);
+
+    const summary = await firstValueFrom(
+      service.getTransactionsSummary({ householdId: 'hh-summary-negative' }),
+    );
+
+    expect(summary).toEqual({
+      incomeCents: 5000,
+      expenseCents: 12000,
+      balanceCents: -7000,
+    });
+  });
+
+  it('summarizes a zero balance', async () => {
+    await Promise.all([
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-zero',
+          type: 'income',
+          amountCents: 9000,
+          date: '2026-05-10',
+          category: 'Resumen cero',
+          description: 'Ingreso cero resumen',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-zero',
+          type: 'expense',
+          amountCents: 9000,
+          date: '2026-05-11',
+          category: 'Resumen cero',
+          description: 'Gasto cero resumen',
+        }),
+      ),
+    ]);
+
+    const summary = await firstValueFrom(
+      service.getTransactionsSummary({ householdId: 'hh-summary-zero' }),
+    );
+
+    expect(summary).toEqual({
+      incomeCents: 9000,
+      expenseCents: 9000,
+      balanceCents: 0,
+    });
+  });
+
+  it('summarizes transactions using date, category, household, type and name filters', async () => {
+    await Promise.all([
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-filters',
+          type: 'income',
+          amountCents: 7000,
+          date: '2026-05-15',
+          category: 'Filtro resumen',
+          description: 'Bonus filtrado',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-filters',
+          type: 'expense',
+          amountCents: 4000,
+          date: '2026-05-15',
+          category: 'Filtro resumen',
+          description: 'Bonus filtrado gasto',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-filters-other',
+          type: 'income',
+          amountCents: 3000,
+          date: '2026-05-15',
+          category: 'Filtro resumen',
+          description: 'Bonus filtrado',
+        }),
+      ),
+      firstValueFrom(
+        service.createTransaction({
+          householdId: 'hh-summary-filters',
+          type: 'income',
+          amountCents: 2000,
+          date: '2026-06-01',
+          category: 'Filtro resumen',
+          description: 'Bonus filtrado',
+        }),
+      ),
+    ]);
+
+    const summary = await firstValueFrom(
+      service.getTransactionsSummary({
+        dateFrom: '2026-05-01',
+        dateTo: '2026-05-31',
+        category: 'filtro',
+        householdId: 'hh-summary-filters',
+        name: 'bonus',
+        type: 'income',
+      }),
+    );
+
+    expect(summary).toEqual({
+      incomeCents: 7000,
+      expenseCents: 0,
+      balanceCents: 7000,
+    });
+  });
 });

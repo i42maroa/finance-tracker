@@ -4,12 +4,41 @@
       <div>
         <p class="currency">EUR</p>
         <h1 class="page-title">Transacciones</h1>
-        <p class="month-label">{{ selectedMonthLabel$ | async }}</p>
+        <p class="range-label">{{ rangeLabel$ | async }}</p>
       </div>
       <div class="count">
         {{ (transactionPage$ | async)?.total ?? 0 }}
       </div>
     </header>
+
+    @if (transactionSummary$ | async; as transactionSummary) {
+      <section class="totals" aria-label="Resumen de transacciones filtradas">
+        <div class="total-item">
+          <p class="total-label">Ingresos</p>
+          <p class="total-value amount-income">
+            {{ transactionSummary.incomeCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+          </p>
+        </div>
+        <div class="total-item">
+          <p class="total-label">Gastos</p>
+          <p class="total-value amount-expense">
+            {{ transactionSummary.expenseCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+          </p>
+        </div>
+        <div
+          class="total-item balance-item"
+          [class.balance-positive]="balanceStatus(transactionSummary) === 'positive'"
+          [class.balance-negative]="balanceStatus(transactionSummary) === 'negative'"
+          [class.balance-neutral]="balanceStatus(transactionSummary) === 'neutral'"
+        >
+          <p class="total-label">Balance</p>
+          <p class="total-value">
+            {{ balancePrefix(transactionSummary)
+            }}{{ transactionSummary.balanceCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+          </p>
+        </div>
+      </section>
+    }
 
     <button
       class="secondary-button filters-toggle"
@@ -22,7 +51,12 @@
     </button>
 
     @if (areFiltersOpen) {
-      <form id="transaction-filters" class="filters" [formGroup]="filterForm">
+      <form
+        id="transaction-filters"
+        class="filters"
+        [formGroup]="filterForm"
+        (ngSubmit)="searchTransactions()"
+      >
         <label class="field">
           Desde
           <input class="field-control" type="date" formControlName="dateFrom" />
@@ -32,6 +66,10 @@
           Hasta
           <input class="field-control" type="date" formControlName="dateTo" />
         </label>
+
+        @if (filterForm.hasError('invalidDateRange') && (filterForm.touched || filterForm.dirty)) {
+          <p class="filter-error">La fecha Hasta no puede ser anterior a la fecha Desde.</p>
+        }
 
         <label class="field">
           Household
@@ -74,9 +112,12 @@
           />
         </label>
 
-        <button class="secondary-button filter-clear" type="button" (click)="clearFilters()">
-          Limpiar
-        </button>
+        <div class="filter-actions">
+          <button class="primary-button" type="submit" [disabled]="filterForm.invalid">
+            Buscar
+          </button>
+          <button class="secondary-button" type="button" (click)="clearFilters()">Limpiar</button>
+        </div>
       </form>
     }
 

@@ -22,6 +22,12 @@ export interface TransactionPage {
   pageSize: number;
 }
 
+export interface TransactionSummary {
+  incomeCents: number;
+  expenseCents: number;
+  balanceCents: number;
+}
+
 export interface Transaction {
   id: string;
   householdId: string;

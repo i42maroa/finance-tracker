@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, map, shareReplay, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, shareReplay, switchMap } from 'rxjs';
 import { AppErrorService } from '../../core/errors/app-error.service';
 import { HouseholdsService } from '../../core/services/household/households.service';
 import { ModalService } from '../../core/services/modal/modal.service';
@@ -13,6 +13,7 @@ import { Household } from '../../shared/models/household.model';
 import {
   Transaction,
   TransactionFilters,
+  TransactionSummary,
   TransactionType,
   TransactionView,
 } from '../../shared/models/transaction.model';
@@ -21,6 +22,11 @@ import { CircleButton } from '../../shared/ui/buttons/circle-button/circle-butto
 type TransactionTypeFilter = TransactionType | '';
 
 const TRANSACTIONS_PAGE_SIZE = 20;
+
+interface MonthDateRange {
+  dateFrom: string;
+  dateTo: string;
+}
 
 @Component({
   selector: 'app-transactions',
@@ -45,20 +51,26 @@ export class Transactions {
   readonly selectedMonth$ = this.route.paramMap.pipe(
     map((params) => this.normalizeMonth(params.get('month'))),
   );
-  readonly selectedMonthLabel$ = this.selectedMonth$.pipe(
-    map((selectedMonth) => this.formatMonthLabel(selectedMonth)),
+  private readonly initialMonthRange = this.getMonthDateRange(
+    this.normalizeMonth(this.route.snapshot.paramMap.get('month')),
   );
   readonly filterForm = this.formBuilder.nonNullable.group({
-    dateFrom: [this.firstDayOfMonth(this.today().slice(0, 7))],
-    dateTo: [this.lastDayOfMonth(this.today().slice(0, 7))],
+    dateFrom: [this.initialMonthRange.dateFrom],
+    dateTo: [this.initialMonthRange.dateTo],
     householdId: [''],
     type: this.formBuilder.nonNullable.control<TransactionTypeFilter>(''),
     category: [''],
     name: [''],
+  }, {
+    validators: [this.dateRangeValidator],
   });
-  readonly filters$ = this.filterForm.valueChanges.pipe(
-    startWith(this.filterForm.getRawValue()),
-    map((filters) => this.toTransactionFilters(filters)),
+  private readonly appliedFiltersSubject = new BehaviorSubject<TransactionFilters>(
+    this.toTransactionFilters(this.filterForm.getRawValue()),
+  );
+  readonly appliedFilters$ = this.appliedFiltersSubject.asObservable();
+  readonly filters$ = this.appliedFilters$;
+  readonly rangeLabel$ = this.filters$.pipe(
+    map((filters) => this.formatRangeLabel(filters.dateFrom, filters.dateTo)),
   );
   readonly transactionPage$ = combineLatest([
     this.transactions$,
@@ -84,21 +96,17 @@ export class Transactions {
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+  readonly transactionSummary$ = combineLatest([this.transactions$, this.filters$]).pipe(
+    switchMap(([, filters]) => this.transactionsService.getTransactionsSummary(filters)),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
   isSaving = false;
   errorMessage = '';
   areFiltersOpen = false;
 
   constructor() {
     this.selectedMonth$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((selectedMonth) => {
-      this.filterForm.patchValue({
-        dateFrom: this.firstDayOfMonth(selectedMonth),
-        dateTo: this.lastDayOfMonth(selectedMonth),
-      });
-      this.resetLoadedTransactions();
-    });
-
-    this.filterForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetLoadedTransactions();
+      this.applyRouteMonth(selectedMonth);
     });
   }
 
@@ -143,18 +151,26 @@ export class Transactions {
     this.areFiltersOpen = !this.areFiltersOpen;
   }
 
+  searchTransactions(): void {
+    if (this.filterForm.invalid) {
+      this.filterForm.markAllAsTouched();
+      return;
+    }
+
+    this.applyFilters(this.toTransactionFilters(this.filterForm.getRawValue()));
+  }
+
   clearFilters(): void {
     const selectedMonth = this.normalizeMonth(this.route.snapshot.paramMap.get('month'));
 
     this.filterForm.reset({
-      dateFrom: this.firstDayOfMonth(selectedMonth),
-      dateTo: this.lastDayOfMonth(selectedMonth),
+      ...this.getMonthDateRange(selectedMonth),
       householdId: '',
       type: '',
       category: '',
       name: '',
     });
-    this.resetLoadedTransactions();
+    this.searchTransactions();
   }
 
   loadMoreTransactions(): void {
@@ -173,16 +189,85 @@ export class Transactions {
     return household.id;
   }
 
+  balanceStatus(summary: TransactionSummary): 'positive' | 'negative' | 'neutral' {
+    if (summary.balanceCents > 0) {
+      return 'positive';
+    }
+
+    if (summary.balanceCents < 0) {
+      return 'negative';
+    }
+
+    return 'neutral';
+  }
+
+  balancePrefix(summary: TransactionSummary): string {
+    return summary.balanceCents > 0 ? '+' : '';
+  }
+
   private resetLoadedTransactions(): void {
     if (this.loadedPagesSubject.value !== 1) {
       this.loadedPagesSubject.next(1);
     }
   }
 
+  private dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+    const dateFrom = control.get('dateFrom')?.value;
+    const dateTo = control.get('dateTo')?.value;
+
+    if (!dateFrom || !dateTo || dateTo >= dateFrom) {
+      return null;
+    }
+
+    return { invalidDateRange: true };
+  }
+
+  private applyRouteMonth(selectedMonth: string): void {
+    const selectedMonthRange = this.getMonthDateRange(selectedMonth);
+    const currentFilters = this.filterForm.getRawValue();
+    const nextFormValue = {
+      ...currentFilters,
+      ...selectedMonthRange,
+    };
+    const nextFilters = this.toTransactionFilters(nextFormValue);
+
+    if (
+      currentFilters.dateFrom === selectedMonthRange.dateFrom &&
+      currentFilters.dateTo === selectedMonthRange.dateTo &&
+      this.areTransactionFiltersEqual(this.appliedFiltersSubject.value, nextFilters)
+    ) {
+      return;
+    }
+
+    this.filterForm.patchValue(selectedMonthRange, { emitEvent: false });
+    this.applyFilters(nextFilters);
+  }
+
+  private applyFilters(filters: TransactionFilters): void {
+    this.appliedFiltersSubject.next(filters);
+    this.resetLoadedTransactions();
+  }
+
+  private areTransactionFiltersEqual(
+    firstFilters: TransactionFilters,
+    secondFilters: TransactionFilters,
+  ): boolean {
+    return (
+      firstFilters.dateFrom === secondFilters.dateFrom &&
+      firstFilters.dateTo === secondFilters.dateTo &&
+      firstFilters.householdId === secondFilters.householdId &&
+      firstFilters.type === secondFilters.type &&
+      firstFilters.category === secondFilters.category &&
+      firstFilters.name === secondFilters.name
+    );
+  }
+
   private toTransactionFilters(filters: typeof this.filterForm.value): TransactionFilters {
+    const currentMonthRange = this.getMonthDateRange(this.today().slice(0, 7));
+
     return {
-      dateFrom: filters.dateFrom || undefined,
-      dateTo: filters.dateTo || undefined,
+      dateFrom: filters.dateFrom || currentMonthRange.dateFrom,
+      dateTo: filters.dateTo || currentMonthRange.dateTo,
       householdId: filters.householdId || undefined,
       type: filters.type || undefined,
       category: filters.category?.trim() || undefined,
@@ -207,27 +292,33 @@ export class Transactions {
     return this.today().slice(0, 7);
   }
 
-  private formatMonthLabel(month: string): string {
-    const date = new Date(`${month}-01T00:00:00`);
-    const label = new Intl.DateTimeFormat('es-ES', {
-      month: 'long',
-      year: 'numeric',
-    }).format(date);
+  private formatRangeLabel(dateFrom: string | undefined, dateTo: string | undefined): string {
+    return `${this.formatDateLabel(dateFrom)} - ${this.formatDateLabel(dateTo)}`;
+  }
 
-    return label.charAt(0).toUpperCase() + label.slice(1);
+  private formatDateLabel(date: string | undefined): string {
+    if (!date) {
+      return '';
+    }
+
+    return new Intl.DateTimeFormat('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(new Date(`${date}T00:00:00`));
   }
 
   private today(): string {
     return new Date().toISOString().slice(0, 10);
   }
 
-  private firstDayOfMonth(month: string): string {
-    return `${month}-01`;
-  }
-
-  private lastDayOfMonth(month: string): string {
+  private getMonthDateRange(month: string): MonthDateRange {
     const [year, monthNumber] = month.split('-').map(Number);
+    const lastDay = new Date(year, monthNumber, 0).getDate();
 
-    return new Date(year, monthNumber, 0).toISOString().slice(0, 10);
+    return {
+      dateFrom: `${month}-01`,
+      dateTo: `${month}-${String(lastDay).padStart(2, '0')}`,
+    };
   }
 }

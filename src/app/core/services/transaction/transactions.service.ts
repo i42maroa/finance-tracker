@@ -8,6 +8,7 @@ import {
   TransactionFilters,
   TransactionPage,
   TransactionPageQuery,
+  TransactionSummary,
 } from '../../../shared/models/transaction.model';
 import { LoaderService } from '../loader/loader.service';
 
@@ -28,9 +29,7 @@ export class TransactionsService {
     return this.loaderService.track(defer(() => {
       const page = Math.max(1, query.page);
       const pageSize = Math.max(1, query.pageSize);
-      const filteredTransactions = this.transactionsSubject.value
-        .filter((transaction) => this.matchesFilters(transaction, query.filters ?? {}))
-        .sort((first, second) => second.date.localeCompare(first.date));
+      const filteredTransactions = this.getFilteredTransactions(query.filters ?? {});
       const startIndex = (page - 1) * pageSize;
 
       return of({
@@ -39,6 +38,31 @@ export class TransactionsService {
         page,
         pageSize,
       }).pipe(delay(150));
+    }));
+  }
+
+  getTransactionsSummary(filters: TransactionFilters = {}): Observable<TransactionSummary> {
+    return this.loaderService.track(defer(() => {
+      const summary = this.getFilteredTransactions(filters).reduce<TransactionSummary>(
+        (currentSummary, transaction) => {
+          if (transaction.type === 'income') {
+            return {
+              ...currentSummary,
+              incomeCents: currentSummary.incomeCents + transaction.amountCents,
+              balanceCents: currentSummary.balanceCents + transaction.amountCents,
+            };
+          }
+
+          return {
+            ...currentSummary,
+            expenseCents: currentSummary.expenseCents + transaction.amountCents,
+            balanceCents: currentSummary.balanceCents - transaction.amountCents,
+          };
+        },
+        { incomeCents: 0, expenseCents: 0, balanceCents: 0 },
+      );
+
+      return of(summary).pipe(delay(150));
     }));
   }
 
@@ -94,6 +118,12 @@ export class TransactionsService {
 
   private createId(): string {
     return crypto.randomUUID();
+  }
+
+  private getFilteredTransactions(filters: TransactionFilters): Transaction[] {
+    return this.transactionsSubject.value
+      .filter((transaction) => this.matchesFilters(transaction, filters))
+      .sort((first, second) => second.date.localeCompare(first.date));
   }
 
   private matchesFilters(transaction: Transaction, filters: TransactionFilters): boolean {
