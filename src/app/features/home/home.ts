@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ModalService } from '../../core/services/modal/modal.service';
+import { CircleButton } from '../../shared/ui/buttons/circle-button/circle-button';
 
 interface MonthLink {
   label: string;
@@ -11,11 +13,12 @@ interface MonthLink {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CircleButton, CommonModule, FormsModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home {
+  private readonly modalService = inject(ModalService);
   private readonly firstSelectableYear = 2025;
   private readonly today = new Date();
   readonly currentYear = this.today.getFullYear();
@@ -29,6 +32,13 @@ export class Home {
 
   monthTrackBy(_: number, month: MonthLink): string {
     return month.month;
+  }
+
+  openCreateTransactionModal(): void {
+    this.modalService.open({
+      type: 'transaction-form',
+      data: { mode: 'create' },
+    });
   }
 
   private buildAvailableYears(): number[] {
