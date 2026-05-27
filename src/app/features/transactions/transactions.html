@@ -1,0 +1,197 @@
+<main class="page">
+  <section class="shell">
+    <header class="topbar">
+      <div>
+        <p class="currency">EUR</p>
+        <h1 class="page-title">Transacciones</h1>
+        <p class="range-label">{{ rangeLabel$ | async }}</p>
+      </div>
+      <div class="count">
+        {{ (transactionPage$ | async)?.total ?? 0 }}
+      </div>
+    </header>
+
+    @if (transactionSummary$ | async; as transactionSummary) {
+      <section class="totals" aria-label="Resumen de transacciones filtradas">
+        <div class="total-item">
+          <p class="total-label">Ingresos</p>
+          <p class="total-value amount-income">
+            {{ transactionSummary.incomeCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+          </p>
+        </div>
+        <div class="total-item">
+          <p class="total-label">Gastos</p>
+          <p class="total-value amount-expense">
+            {{ transactionSummary.expenseCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+          </p>
+        </div>
+        <div
+          class="total-item balance-item"
+          [class.balance-positive]="balanceStatus(transactionSummary) === 'positive'"
+          [class.balance-negative]="balanceStatus(transactionSummary) === 'negative'"
+          [class.balance-neutral]="balanceStatus(transactionSummary) === 'neutral'"
+        >
+          <p class="total-label">Balance</p>
+          <p class="total-value">
+            {{ balancePrefix(transactionSummary)
+            }}{{ transactionSummary.balanceCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+          </p>
+        </div>
+      </section>
+    }
+
+    <button
+      class="secondary-button filters-toggle"
+      type="button"
+      aria-controls="transaction-filters"
+      [attr.aria-expanded]="areFiltersOpen"
+      (click)="toggleFilters()"
+    >
+      {{ areFiltersOpen ? 'Ocultar filtros' : 'Filtros' }}
+    </button>
+
+    @if (areFiltersOpen) {
+      <form
+        id="transaction-filters"
+        class="filters"
+        [formGroup]="filterForm"
+        (ngSubmit)="searchTransactions()"
+      >
+        <label class="field">
+          Desde
+          <input class="field-control" type="date" formControlName="dateFrom" />
+        </label>
+
+        <label class="field">
+          Hasta
+          <input class="field-control" type="date" formControlName="dateTo" />
+        </label>
+
+        @if (filterForm.hasError('invalidDateRange') && (filterForm.touched || filterForm.dirty)) {
+          <p class="filter-error">La fecha Hasta no puede ser anterior a la fecha Desde.</p>
+        }
+
+        <label class="field">
+          Household
+          <select class="field-control" formControlName="householdId">
+            <option value="">Todos</option>
+            @for (household of households$ | async; track householdTrackBy($index, household)) {
+              <option [value]="household.id">{{ household.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          Tipo
+          <select class="field-control" formControlName="type">
+            <option value="">Todos</option>
+            <option value="expense">Gasto</option>
+            <option value="income">Ingreso</option>
+          </select>
+        </label>
+
+        <label class="field">
+          Categoria
+          <input
+            class="field-control"
+            type="text"
+            autocomplete="off"
+            placeholder="Comida"
+            formControlName="category"
+          />
+        </label>
+
+        <label class="field">
+          Nombre
+          <input
+            class="field-control"
+            type="search"
+            autocomplete="off"
+            placeholder="Menu"
+            formControlName="name"
+          />
+        </label>
+
+        <div class="filter-actions">
+          <button class="primary-button" type="submit" [disabled]="filterForm.invalid">
+            Buscar
+          </button>
+          <button class="secondary-button" type="button" (click)="clearFilters()">Limpiar</button>
+        </div>
+      </form>
+    }
+
+    <section class="list">
+      @if (transactionPage$ | async; as transactionPage) {
+        @for (transaction of transactionPage.items; track transactionTrackBy($index, transaction)) {
+          <article class="card">
+            <div class="summary">
+              <div class="copy">
+                <p class="desc">{{ transaction.description }}</p>
+                <p class="category">{{ transaction.category }}</p>
+                <p class="household-name">{{ transaction.householdName }}</p>
+              </div>
+              <p
+                class="amount"
+                [class.amount-expense]="transaction.type === 'expense'"
+                [class.amount-income]="transaction.type === 'income'"
+              >
+                {{ transaction.type === 'expense' ? '-' : '+' }}
+                {{ transaction.amountCents / 100 | currency: 'EUR' : 'symbol' : '1.2-2' }}
+              </p>
+            </div>
+
+            @if (transaction.notes) {
+              <p class="notes">
+                {{ transaction.notes }}
+              </p>
+            }
+
+            <div class="actions">
+              <time class="date">{{ transaction.date | date }}</time>
+              <div class="button-row">
+                <button
+                  class="secondary-button small-button"
+                  type="button"
+                  (click)="editTransaction(transaction)"
+                >
+                  Editar
+                </button>
+                <button
+                  class="danger-button small-button"
+                  type="button"
+                  (click)="deleteTransaction(transaction)"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </article>
+        } @empty {
+          <div class="empty">
+            <p class="empty-title">No hay transacciones con estos filtros</p>
+            <p class="muted">Ajusta la fecha o limpia los filtros para ampliar los resultados.</p>
+          </div>
+        }
+
+        @if (transactionPage.total > 0) {
+          <div class="load-more">
+            <p class="date">{{ transactionPage.items.length }} de {{ transactionPage.total }}</p>
+            @if (canLoadMore(transactionPage.items.length, transactionPage.total)) {
+              <button class="secondary-button" type="button" (click)="loadMoreTransactions()">
+                Cargar mas
+              </button>
+            }
+          </div>
+        }
+      }
+    </section>
+  </section>
+
+  <app-circle-button
+    ariaLabel="Crear transaccion"
+    (pressed)="openCreateTransactionModal()"
+  >
+    +
+  </app-circle-button>
+</main>

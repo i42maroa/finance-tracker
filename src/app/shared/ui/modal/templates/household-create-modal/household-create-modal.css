@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.household-form {
+  display: grid;
+  gap: 1rem;
+  padding-top: 2rem;
+}
+
+.section-kicker {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.form-title {
+  margin: 0.25rem 0 0;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
+
+.field,
+.form-actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.field {
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-control {
+  min-height: 3rem;
+  width: 100%;
+  border: 1px solid var(--color-page);
+  border-radius: 0.5rem;
+  padding: 0 0.75rem;
+  color: var(--color-text);
+}
+
+.form-error {
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in srgb, var(--color-error), var(--color-secondary) 92%);
+  color: var(--color-error);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.primary-button {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-weight: 700;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  background: var(--color-page);
+}
+
+button:focus-visible,
+.field-control:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary), var(--color-secondary) 70%);
+  outline-offset: 2px;
+}

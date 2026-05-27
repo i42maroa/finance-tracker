@@ -1,0 +1,25 @@
+<form class="household-form" [formGroup]="createForm" (ngSubmit)="submitCreateHousehold()">
+  <header class="form-head">
+    <p class="section-kicker">Household</p>
+    <h2 class="form-title">Nuevo household</h2>
+  </header>
+
+  <label class="field">
+    Nombre
+    <input
+      class="field-control"
+      type="text"
+      autocomplete="off"
+      placeholder="Hogar principal"
+      formControlName="name"
+    />
+  </label>
+
+  @if (errorMessage) {
+    <p class="form-error">{{ errorMessage }}</p>
+  }
+
+  <div class="form-actions">
+    <button class="primary-button" type="submit" [disabled]="isSaving">Crear household</button>
+  </div>
+</form>

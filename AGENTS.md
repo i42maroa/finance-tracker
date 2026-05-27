@@ -112,6 +112,25 @@ Campos recomendados:
 - Fecha de creacion
 - Fecha de actualizacion
 
+Funcionalidad actual de movimientos:
+
+- El listado de transacciones soporta filtros por rango de fecha, categoria, household, descripcion/nombre y tipo.
+- Los filtros se muestran ocultos inicialmente y se despliegan desde un boton.
+- La carga inicial del listado muestra hasta 20 transacciones.
+- Si hay mas resultados, se usa un boton de cargar mas que anade el siguiente bloque de transacciones al final de la lista.
+- Las llamadas del servicio de transacciones estan preparadas con contrato de filtros y paginacion aunque actualmente usen datos mockeados.
+
+## Modales
+
+La aplicacion utiliza un modal global montado en la raiz de la aplicacion.
+
+Decisiones:
+
+- El modal se abre a traves de un servicio tipado.
+- El contenido del modal se decide por un tipo predefinido.
+- Los templates actuales de modal incluyen crear/editar transaccion, crear household e invitar miembro.
+- Las pantallas de feature no deben montar su propio contenedor `<app-modal>`.
+
 ## Inversiones
 
 La aplicacion debe reflejar inversiones como crypto y fondos indexados.
@@ -209,7 +228,6 @@ El soporte offline completo no forma parte del alcance inicial.
 - Listado y filtros de movimientos.
 - Dashboard mensual basico.
 - Seguridad RLS en Supabase.
-- Tailwind CSS como sistema de estilos.
 - Diseno mobile first.
 
 ### Version 2
@@ -252,3 +270,8 @@ El soporte offline completo no forma parte del alcance inicial.
 - Separar inversiones de gastos e ingresos diarios.
 - Leer `STACK.md` para conocer el stack tecnico vigente del proyecto.
 - Mantener `STACK.md` limitado al stack tecnico.
+- Cuando se cree una nueva interfaz se debe de introducir dentro de la carpeta `models`.
+- Cuando se cree un nuevo servicio Angular se debe ubicar dentro de `src/app/core/services`.
+- Los servicios deben agruparse en una subcarpeta por dominio dentro de `core/services`, por ejemplo `core/services/transaction`.
+- Al crear o modificar componentes se deben reutilizar los componentes genericos disponibles en `src/app/shared/ui` antes de crear marcado o estilos propios.
+- Para botones se deben usar los componentes de `src/app/shared/ui/buttons`, cuando encajen con la interaccion requerida.

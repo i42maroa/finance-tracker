@@ -1,0 +1,95 @@
+<main class="households-page">
+  <section class="households-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Administracion</p>
+        <h1 class="page-title">Households</h1>
+        <p class="page-subtitle">Gestiona tus hogares y sus miembros.</p>
+      </div>
+      <app-basic-button variant="primary" size="compact" (pressed)="openCreateModal()">
+        Nuevo
+      </app-basic-button>
+    </header>
+
+    @if (summary$ | async; as summary) {
+      <section class="summary-grid" aria-label="Resumen de households">
+        <article class="summary-card">
+          <p class="summary-label">Households</p>
+          <p class="summary-value">{{ summary.count }}</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Seleccionado</p>
+          <p class="summary-value summary-name">{{ summary.selectedName }}</p>
+        </article>
+      </section>
+    }
+
+    <section class="content-grid">
+      <section class="panel" aria-labelledby="household-list-title">
+        <header class="section-head">
+          <div>
+            <p class="section-kicker">Lista</p>
+            <h2 id="household-list-title" class="section-title">Tus households</h2>
+          </div>
+        </header>
+
+        <div class="household-list">
+          @for (household of households$ | async; track householdTrackBy($index, household)) {
+            <button
+              class="household-button"
+              type="button"
+              (click)="selectHousehold(household)"
+            >
+              <span>
+                <span class="household-name">{{ household.name }}</span>
+                <span class="household-meta">{{ household.members.length }} miembros</span>
+              </span>
+              <span class="select-copy">Ver</span>
+            </button>
+          } @empty {
+            <div class="empty">
+              <p class="empty-title">Todavia no tienes households</p>
+              <p class="muted">Crea uno para empezar a compartir datos financieros.</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="household-detail-title">
+        @if (selectedHousehold$ | async; as selectedHousehold) {
+          <header class="section-head">
+            <div>
+              <p class="section-kicker">Detalle</p>
+              <h2 id="household-detail-title" class="section-title">{{ selectedHousehold.name }}</h2>
+            </div>
+            <button class="secondary-button compact-button" type="button" (click)="openInviteModal()">
+              Invitar
+            </button>
+          </header>
+
+          <div class="member-list">
+            @for (member of selectedHousehold.members; track memberTrackBy($index, member)) {
+              <article class="member-row">
+                <div class="member-copy">
+                  <p class="member-name">{{ member.name }}</p>
+                  <p class="member-email">{{ member.email }}</p>
+                </div>
+                <div class="member-tags">
+                  <span class="role-pill">{{ roleLabel(member.role) }}</span>
+                  <span class="status-pill" [class.status-pending]="member.status === 'pending'">
+                    {{ statusLabel(member.status) }}
+                  </span>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty">
+            <p class="empty-title">Selecciona un household</p>
+            <p class="muted">El detalle y las invitaciones apareceran aqui.</p>
+          </div>
+        }
+      </section>
+    </section>
+  </section>
+</main>

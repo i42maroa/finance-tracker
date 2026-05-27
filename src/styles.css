@@ -1,4 +1,17 @@
-@import "tailwindcss";
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --color-page: #f8fafc;
+  --color-text: #0f172a;
+  --color-primary: #047857;
+  --color-secondary: #ffffff;
+  --color-sucess: #047857;
+  --color-error: #be123c;
+}
 
 html,
 body {
@@ -9,6 +22,17 @@ body {
   margin: 0;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--color-page);
+  color: var(--color-text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
 }

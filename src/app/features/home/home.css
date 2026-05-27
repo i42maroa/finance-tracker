@@ -1,0 +1,134 @@
+.home-page {
+  min-height: 100vh;
+  padding: 1.25rem 1rem 3rem;
+}
+
+.home-shell {
+  display: flex;
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.home-header {
+  padding-top: 0.5rem;
+}
+
+.eyebrow,
+.home-title,
+.home-subtitle {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.home-title {
+  margin-top: 0.25rem;
+  font-size: 2rem;
+  line-height: 2.4rem;
+}
+
+.home-subtitle {
+  margin-top: 0.5rem;
+  color: color-mix(in srgb, var(--color-text), var(--color-secondary) 40%);
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.year-selector {
+  display: grid;
+  gap: 0.375rem;
+  color: color-mix(in srgb, var(--color-text), var(--color-secondary) 20%);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.year-select {
+  min-height: 3rem;
+  width: 100%;
+  border: 1px solid var(--color-page);
+  border-radius: 0.5rem;
+  padding: 0 0.875rem;
+  background: var(--color-secondary);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-text), transparent 95%);
+}
+
+.year-select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary), var(--color-secondary) 70%);
+  outline-offset: 2px;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.month-link {
+  display: grid;
+  min-height: 5.5rem;
+  align-content: space-between;
+  border: 1px solid var(--color-page);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: var(--color-secondary);
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-text), transparent 95%);
+}
+
+.month-link:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary), var(--color-secondary) 70%);
+  outline-offset: 2px;
+}
+
+.current-month {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  box-shadow:
+    0 10px 15px -3px color-mix(in srgb, var(--color-primary), transparent 78%),
+    0 4px 6px -4px color-mix(in srgb, var(--color-primary), transparent 78%);
+}
+
+.month-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.month-year {
+  color: color-mix(in srgb, currentColor, transparent 20%);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  .home-page {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .month-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-page {
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+
+  .month-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

@@ -8,7 +8,7 @@
 - Routing: Angular Router
 - Estado local: Angular Signals
 - Formularios: Angular Reactive Forms
-- Estilos: Tailwind CSS
+- Estilos: CSS
 - Enfoque de interfaz: responsive con criterio mobile first
 
 ## Backend
@@ -62,7 +62,6 @@ src/
 
 - Angular 21
 - TypeScript
-- Tailwind CSS
 - Supabase
 - Supabase Auth con Google OAuth
 - PostgreSQL en Supabase

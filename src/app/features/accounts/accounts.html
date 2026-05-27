@@ -1,0 +1,76 @@
+<main class="accounts-page">
+  <section class="accounts-shell">
+    <header class="profile-header">
+      <div class="avatar" aria-hidden="true">{{ user.initials }}</div>
+      <div class="profile-copy">
+        <p class="eyebrow">Perfil</p>
+        <h1 class="profile-title">{{ user.name }}</h1>
+        <p class="profile-subtitle">{{ user.email }}</p>
+      </div>
+    </header>
+
+    <section class="metric-grid" aria-label="Resumen del perfil">
+      @for (metric of metrics; track metricTrackBy($index, metric)) {
+        <article class="metric-card">
+          <p class="metric-label">{{ metric.label }}</p>
+          <p class="metric-value">{{ metric.value }}</p>
+          <p class="metric-detail">{{ metric.detail }}</p>
+        </article>
+      }
+    </section>
+
+    <section class="panel" aria-labelledby="profile-data-title">
+      <header class="section-head">
+        <div>
+          <p class="section-kicker">Cuenta</p>
+          <h2 id="profile-data-title" class="section-title">Datos del usuario</h2>
+        </div>
+        <span class="status-pill">Activo</span>
+      </header>
+
+      <dl class="details-list">
+        @for (field of profileFields; track fieldTrackBy($index, field)) {
+          <div class="detail-row">
+            <dt>{{ field.label }}</dt>
+            <dd>{{ field.value }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <section class="panel" aria-labelledby="household-title">
+      <header class="section-head">
+        <div>
+          <p class="section-kicker">Households</p>
+          <h2 id="household-title" class="section-title">Households del usuario</h2>
+        </div>
+      </header>
+
+      <div class="household-list">
+        @for (household of households$ | async; track householdTrackBy($index, household)) {
+          <article class="household-row">
+            <div>
+              <p class="household-name">{{ household.name }}</p>
+              <p class="household-meta">{{ household.members.length }} miembros</p>
+            </div>
+            <span class="member-status">{{ userRoleLabel(household) }}</span>
+          </article>
+        } @empty {
+          <div class="empty">
+            <p class="empty-title">Todavia no perteneces a ningun household</p>
+            <p class="muted">Crea uno desde la seccion Households para empezar.</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="panel privacy-panel" aria-labelledby="privacy-title">
+      <p class="section-kicker">Seguridad</p>
+      <h2 id="privacy-title" class="section-title">Datos protegidos por household</h2>
+      <p class="privacy-copy">
+        Las cuentas, categorias, transacciones y presupuestos se asociaran al household activo.
+        El frontend mostrara esta informacion, pero la proteccion real debe vivir en Supabase RLS.
+      </p>
+    </section>
+  </section>
+</main>

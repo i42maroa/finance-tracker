@@ -1,0 +1,45 @@
+<form class="household-form" [formGroup]="inviteForm" (ngSubmit)="submitInviteMember()">
+  <header class="form-head">
+    <p class="section-kicker">Invitacion</p>
+    <h2 class="form-title">Invitar usuario</h2>
+  </header>
+
+  <label class="field">
+    Email
+    <input
+      class="field-control"
+      type="email"
+      autocomplete="email"
+      placeholder="persona@example.com"
+      formControlName="email"
+    />
+  </label>
+
+  <fieldset class="role-field">
+    <legend>Rol</legend>
+    <div class="role-options">
+      <label
+        class="role-option"
+        [class.role-active]="inviteForm.controls.role.value === 'member'"
+      >
+        <input class="visually-hidden" type="radio" value="member" formControlName="role" />
+        Miembro
+      </label>
+      <label
+        class="role-option"
+        [class.role-active]="inviteForm.controls.role.value === 'admin'"
+      >
+        <input class="visually-hidden" type="radio" value="admin" formControlName="role" />
+        Administrador
+      </label>
+    </div>
+  </fieldset>
+
+  @if (errorMessage) {
+    <p class="form-error">{{ errorMessage }}</p>
+  }
+
+  <div class="form-actions">
+    <button class="primary-button" type="submit" [disabled]="isSaving">Enviar invitacion</button>
+  </div>
+</form>
