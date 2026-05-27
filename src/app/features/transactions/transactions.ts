@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Transaction, TransactionDraft } from '../../shared/models/transaction.model';
 import { Modal } from '../../shared/ui/modal/modal';
 import { ModalService } from '../../shared/ui/modal/modal.service';
+import { SnackbarService } from '../../shared/ui/snackbar/snackbar.service';
 import { TransactionsService } from './service/transactions.service';
 
 @Component({
@@ -16,6 +17,7 @@ import { TransactionsService } from './service/transactions.service';
 export class Transactions {
   private readonly formBuilder = inject(FormBuilder);
   private readonly modalService = inject(ModalService);
+  private readonly snackbarService = inject(SnackbarService);
   private readonly transactionsService = inject(TransactionsService);
 
   readonly transactions$ = this.transactionsService.transactions$;
@@ -49,14 +51,20 @@ export class Transactions {
     this.errorMessage = '';
 
     const transaction = this.toTransactionDraft();
-    const request$ = this.editingTransactionId
-      ? this.transactionsService.updateTransaction(this.editingTransactionId, transaction)
-      : this.transactionsService.createTransaction(transaction);
+    const editingTransactionId = this.editingTransactionId;
+    const isCreatingTransaction = !editingTransactionId;
+    const request$ = isCreatingTransaction
+      ? this.transactionsService.createTransaction(transaction)
+      : this.transactionsService.updateTransaction(editingTransactionId, transaction);
 
     request$.subscribe({
       next: () => {
         this.resetForm();
         this.modalService.close();
+
+        if (isCreatingTransaction) {
+          this.snackbarService.success('Transaccion creada correctamente.');
+        }
       },
       error: () => {
         this.errorMessage = 'No se pudo guardar la transaccion.';

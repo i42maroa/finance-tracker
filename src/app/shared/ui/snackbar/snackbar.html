@@ -1,0 +1,15 @@
+@if (snackbarService.snackbar$ | async; as snackbar) {
+  @if (snackbar.isOpen) {
+    <div class="snackbar-shell">
+      <p
+        class="snackbar-message"
+        [class.snackbar-success]="snackbar.type === 'success'"
+        [class.snackbar-error]="snackbar.type === 'error'"
+        [class.snackbar-info]="snackbar.type === 'info'"
+        [attr.role]="snackbar.type === 'error' ? 'alert' : 'status'"
+      >
+        {{ snackbar.message }}
+      </p>
+    </div>
+  }
+}
